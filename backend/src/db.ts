@@ -11,6 +11,13 @@ fs.mkdirSync(path.dirname(config.dbFile), { recursive: true });
 
 export const db = new DatabaseSync(config.dbFile);
 
+// Perf: WAL (citaci ne blokiraju pisace) + NORMAL fsync (brzi upisi) + busy_timeout.
+// journal_mode=WAL je trajno u fajlu; synchronous/busy_timeout su po konekciji.
+db.exec("PRAGMA journal_mode = WAL");
+db.exec("PRAGMA synchronous = NORMAL");
+db.exec("PRAGMA busy_timeout = 5000");
+db.exec("PRAGMA foreign_keys = ON");
+
 /** Inicijalizuje schemu (idempotentno). */
 export function initSchema(): void {
   const schemaPath = path.join(__dirname, "schema.sql");

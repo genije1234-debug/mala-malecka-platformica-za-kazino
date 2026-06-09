@@ -1,6 +1,7 @@
 import { get, run, all, nowIso } from "../db.ts";
 import { uid, clamp, secureRandom, money } from "../util.ts";
 import { config } from "../config.ts";
+import { gasBoost } from "./houseGovernor.ts";
 
 /**
  * MOZAK.
@@ -155,6 +156,13 @@ export function computeSteering(
   const lifeRtp = effectiveRtp(playerId);
   if (lifeRtp < config.rtpHardFloor) requestedRtp = Math.max(requestedRtp, 1.4);
   if (lifeRtp > config.rtpHardCeil) requestedRtp = Math.min(requestedRtp, 0.6);
+
+  // GAS (dvosmerni regulator kuce): kad UKUPNI RTP padne ispod praga, blago
+  // podigni EV ovom igracu AKO je ispod svoje mete. Para curi postepeno kroz
+  // mnogo poteza; gasi se kad se kuca vrati na metu oporavka. Plafon 95% ostaje.
+  const playerNeed = brain.target_rtp - lifeRtp;
+  const gas = gasBoost(playerNeed);
+  if (gas > 0) requestedRtp += gas;
 
   requestedRtp = clamp(requestedRtp, 0.4, 2.0);
   return { requestedRtp, effRtp, targetAt };

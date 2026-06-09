@@ -207,6 +207,13 @@ function Overview() {
             accent={total.house_rtp <= total.house_target_rtp ? "green" : "red"}
           />
         )}
+        {total.house_gas_active != null && (
+          <Kpi
+            label={`Gas (pali <${(total.house_gas_trigger * 100).toFixed(0)}% · gasi ≥${(total.house_gas_recover * 100).toFixed(1)}%)`}
+            value={total.house_gas_active ? "ON ▲" : "OFF"}
+            accent={total.house_gas_active ? "green" : undefined}
+          />
+        )}
       </div>
 
       <div className="bo-grid-2">

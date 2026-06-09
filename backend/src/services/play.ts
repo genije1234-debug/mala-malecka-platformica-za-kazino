@@ -12,6 +12,7 @@ import { playGame, type GameConfig, type PlayOptions } from "../games/engines.ts
 import { generateAndLog } from "./rng.ts";
 import { applyMaxWinGuard } from "./maxWinGuard.ts";
 import { recordStake, recordReturn, capWin } from "./houseGovernor.ts";
+import { recordRoundStat } from "./gameStats.ts";
 import { contribute, checkAndTrigger } from "./jackpot.ts";
 import { accrue, getFreebet, consumeGranted } from "./freebet.ts";
 import { trackEvent, updateBehaviorOnBet } from "./behavior.ts";
@@ -182,7 +183,10 @@ export function playRound(params: {
 
     // 12) Mozak update (samo REAL ulog ulazi u RTP).
     const totalReturn = finalWin + (jackpotWin?.amount ?? 0);
-    if (mode === "REAL") recordOutcome(playerId, bet, finalWin); // jackpot se odvojeno preracunava
+    if (mode === "REAL") {
+      recordOutcome(playerId, bet, finalWin); // jackpot se odvojeno preracunava
+      recordRoundStat(gameId, bet, finalWin); // brojaci u hodu po igri (KPI bez skeniranja)
+    }
 
     // 13) Behavior + eventi.
     const won = finalWin > 0;

@@ -10,6 +10,7 @@ import { getBalance, walletOp } from "./services/wallet.ts";
 import { getFreebet } from "./services/freebet.ts";
 import { listJackpots } from "./services/jackpot.ts";
 import { houseStats } from "./services/houseGovernor.ts";
+import { totalStats, perGameStats } from "./services/gameStats.ts";
 import { playRound, PlayError } from "./services/play.ts";
 import {
   minesStart,
@@ -376,20 +377,18 @@ api.get("/admin/events", authMiddleware, adminMiddleware, (req, res) => {
 // ============================ REPORTS ============================
 
 api.get("/reports/total", authMiddleware, adminMiddleware, (_req, res) => {
-  const r = get<any>(
-    `SELECT COUNT(*) AS rounds, COALESCE(SUM(bet_amount),0) AS total_bet,
-            COALESCE(SUM(final_win_amount),0) AS total_win,
-            COALESCE(SUM(jackpot_amount),0) AS total_jackpot
-     FROM casino_rounds WHERE mode='REAL'`,
-  )!;
-  const totalBet = r.total_bet || 0;
-  const totalReturn = (r.total_win || 0) + (r.total_jackpot || 0);
+  // Brojaci u hodu (game_stats: ~30 redova) umesto SUM po celoj istoriji rundi.
+  const ts = totalStats();
+  // Jackpot isplate: brojac u hodu na jackpots (tacan zbir svih dobitnika).
+  const totalJackpot = get<{ jp: number }>(`SELECT COALESCE(SUM(total_payouts),0) AS jp FROM jackpots`)!.jp || 0;
+  const totalBet = ts.bet;
+  const totalReturn = ts.win + totalJackpot;
   const hs = houseStats();
   res.json({
-    total_rounds: r.rounds,
+    total_rounds: ts.rounds,
     total_bet: money(totalBet),
-    total_win: money(r.total_win),
-    total_jackpot_payout: money(r.total_jackpot),
+    total_win: money(ts.win),
+    total_jackpot_payout: money(totalJackpot),
     ggr: money(totalBet - totalReturn),
     total_rtp: totalBet > 0 ? totalReturn / totalBet : 0,
     // House governor: tvrdi plafon isplate (garantovano <= ciljani RTP).
@@ -398,47 +397,46 @@ api.get("/reports/total", authMiddleware, adminMiddleware, (_req, res) => {
     house_rtp: hs.rtp,
     house_budget: money(hs.budget),
     house_target_rtp: config.defaultTargetRtp,
+    house_gas_active: hs.gasActive,
+    house_gas_trigger: config.gasTriggerRtp,
+    house_gas_recover: config.gasRecoverRtp,
   });
 });
 
 api.get("/reports/per-game", authMiddleware, adminMiddleware, (_req, res) => {
-  const rows = all<any>(
-    `SELECT g.game_id, g.name, g.game_type,
-            COUNT(r.round_id) AS rounds,
-            COALESCE(SUM(r.bet_amount),0) AS total_bet,
-            COALESCE(SUM(r.final_win_amount),0) AS total_win,
-            COALESCE(SUM(r.jackpot_amount),0) AS total_jackpot,
-            COALESCE(MAX(r.final_win_amount),0) AS max_win
-     FROM casino_games g LEFT JOIN casino_rounds r ON r.game_id=g.game_id AND r.mode='REAL'
-     GROUP BY g.game_id ORDER BY rounds DESC`,
-  );
+  // Brojaci u hodu po igri (game_stats). Jackpot je globalan (cross-game), pa je
+  // RTP po igri bazni (dobitak/ulog); ukupni jackpot se vidi u /reports/total.
+  const rows = perGameStats();
   res.json(
     rows.map((r) => ({
-      ...r,
-      rtp: r.total_bet > 0 ? (r.total_win + r.total_jackpot) / r.total_bet : null,
-      ggr: money(r.total_bet - r.total_win - r.total_jackpot),
+      game_id: r.game_id,
+      name: r.name,
+      game_type: r.game_type,
+      rounds: r.rounds,
+      total_bet: money(r.total_bet),
+      total_win: money(r.total_win),
+      max_win: money(r.max_win),
+      rtp: r.total_bet > 0 ? r.total_win / r.total_bet : null,
+      ggr: money(r.total_bet - r.total_win),
     })),
   );
 });
 
 api.get("/reports/jackpots", authMiddleware, adminMiddleware, (_req, res) => {
+  // Brojaci u hodu na jackpots (bez SUM po ~620k redova doprinosa).
   const rows = all<any>(`SELECT * FROM jackpots ORDER BY sort_order ASC`);
   res.json(
     rows.map((j) => {
-      const wins = get<any>(
-        `SELECT COUNT(*) AS n, COALESCE(SUM(amount),0) AS total FROM jackpot_wins WHERE jackpot_id=? AND status='CREDITED'`,
-        [j.jackpot_id],
-      )!;
-      const contrib = get<any>(
-        `SELECT COALESCE(SUM(amount),0) AS total FROM jackpot_contributions WHERE jackpot_id=? AND status='APPLIED'`,
+      const wins = get<{ n: number }>(
+        `SELECT COUNT(*) AS n FROM jackpot_wins WHERE jackpot_id=? AND status='CREDITED'`,
         [j.jackpot_id],
       )!;
       return {
         jackpot_id: j.jackpot_id,
         name: j.name,
         current_amount: money(j.current_amount),
-        total_contributions: money(contrib.total),
-        total_payouts: money(wins.total),
+        total_contributions: money(j.total_contributions),
+        total_payouts: money(j.total_payouts),
         number_of_wins: wins.n,
         last_win_at: j.last_win_at,
       };

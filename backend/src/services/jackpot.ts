@@ -59,7 +59,8 @@ export function contribute(playerId: string, gameId: string, roundId: string, be
     jackpots.forEach((j, i) => {
       const part = money(total * (weights[i] / sum));
       if (part <= 0) return;
-      run(`UPDATE jackpots SET current_amount = current_amount + ?, updated_at=? WHERE jackpot_id=?`, [
+      run(`UPDATE jackpots SET current_amount = current_amount + ?, total_contributions = total_contributions + ?, updated_at=? WHERE jackpot_id=?`, [
+        part,
         part,
         nowIso(),
         j.jackpot_id,
@@ -79,7 +80,8 @@ export function reverseContributions(roundId: string, reason: string): void {
   const contribs = all<any>(`SELECT * FROM jackpot_contributions WHERE round_id=? AND status='APPLIED'`, [roundId]);
   tx(() => {
     for (const c of contribs) {
-      run(`UPDATE jackpots SET current_amount = current_amount - ?, updated_at=? WHERE jackpot_id=?`, [
+      run(`UPDATE jackpots SET current_amount = current_amount - ?, total_contributions = total_contributions - ?, updated_at=? WHERE jackpot_id=?`, [
+        c.amount,
         c.amount,
         nowIso(),
         c.jackpot_id,
@@ -184,9 +186,10 @@ function payJackpot(j: any, winnerId: string, roundId: string, amount: number): 
   ]);
   recordReturn(amount); // jackpot isplata ulazi u house budzet (svaki dobitnik)
 
-  // Reset poola na seed.
-  run(`UPDATE jackpots SET current_amount=seed_amount, last_win_at=?, updated_at=? WHERE jackpot_id=?`, [
+  // Reset poola na seed + brojac isplata u hodu.
+  run(`UPDATE jackpots SET current_amount=seed_amount, last_win_at=?, total_payouts = total_payouts + ?, updated_at=? WHERE jackpot_id=?`, [
     nowIso(),
+    amount,
     nowIso(),
     j.jackpot_id,
   ]);

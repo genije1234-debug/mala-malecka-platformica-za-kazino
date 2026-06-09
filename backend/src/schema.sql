@@ -121,6 +121,19 @@ CREATE TABLE IF NOT EXISTS casino_rounds (
 );
 CREATE INDEX IF NOT EXISTS idx_rounds_player ON casino_rounds(player_id);
 CREATE INDEX IF NOT EXISTS idx_rounds_status ON casino_rounds(status);
+-- Perf: lista zadnjih rundi (ORDER BY created_at) + mozak (istorija po igracu).
+CREATE INDEX IF NOT EXISTS idx_rounds_created ON casino_rounds(created_at);
+CREATE INDEX IF NOT EXISTS idx_rounds_player_mode_created ON casino_rounds(player_id, mode, created_at);
+
+-- Brojaci u hodu po igri (da KPI ne skeniraju celu istoriju rundi).
+CREATE TABLE IF NOT EXISTS game_stats (
+  game_id    TEXT PRIMARY KEY,
+  rounds     INTEGER NOT NULL DEFAULT 0,
+  total_bet  REAL NOT NULL DEFAULT 0,
+  total_win  REAL NOT NULL DEFAULT 0,
+  max_win    REAL NOT NULL DEFAULT 0,
+  updated_at TEXT
+);
 
 CREATE TABLE IF NOT EXISTS casino_round_events (
   event_id   TEXT PRIMARY KEY,
@@ -175,6 +188,8 @@ CREATE TABLE IF NOT EXISTS casino_rng_logs (
   hash_chain_current  TEXT,
   created_at          TEXT NOT NULL
 );
+-- Perf: hash-chain svake runde cita zadnji log (ORDER BY created_at DESC LIMIT 1).
+CREATE INDEX IF NOT EXISTS idx_rng_created ON casino_rng_logs(created_at);
 
 -- ============================ MOZAK / RTP ============================
 
@@ -241,6 +256,8 @@ CREATE TABLE IF NOT EXISTS jackpots (
   status         TEXT NOT NULL DEFAULT 'ACTIVE',
   last_win_at    TEXT,
   sort_order     INTEGER NOT NULL DEFAULT 0,
+  total_contributions REAL NOT NULL DEFAULT 0, -- brojac u hodu (umesto SUM po doprinosima)
+  total_payouts       REAL NOT NULL DEFAULT 0, -- brojac u hodu (umesto SUM po dobicima)
   created_at     TEXT NOT NULL,
   updated_at     TEXT NOT NULL
 );
@@ -256,6 +273,7 @@ CREATE TABLE IF NOT EXISTS jackpot_contributions (
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_contrib_round ON jackpot_contributions(round_id);
+CREATE INDEX IF NOT EXISTS idx_contrib_jackpot ON jackpot_contributions(jackpot_id);
 
 CREATE TABLE IF NOT EXISTS jackpot_wins (
   jackpot_win_id TEXT PRIMARY KEY,

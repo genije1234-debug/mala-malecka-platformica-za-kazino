@@ -123,12 +123,13 @@ export function resetState(): void {
     "risk_flags",
     "reconciliation_issues",
     "player_behavior_metrics",
+    "game_stats",
     // casino_sessions se NE briše: aktivni admin/igrač ostaju ulogovani posle reseta.
   ];
   const now = nowIso();
   tx(() => {
     for (const t of wipe) run(`DELETE FROM ${t}`);
-    run(`UPDATE jackpots SET current_amount = seed_amount, last_win_at = NULL, updated_at = ?`, [now]);
+    run(`UPDATE jackpots SET current_amount = seed_amount, last_win_at = NULL, total_contributions = 0, total_payouts = 0, updated_at = ?`, [now]);
     run(`UPDATE mock_wallet_balances SET balance = 0, updated_at = ?`, [now]);
     run(`UPDATE player_freebet_wallet SET balance = 0, granted_balance = 0, updated_at = ?`, [now]);
     run(

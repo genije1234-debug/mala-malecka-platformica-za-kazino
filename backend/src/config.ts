@@ -38,6 +38,16 @@ export const config = {
   // Koliko realnog uloga blendamo sa istorijom na pocetku sesije (stabilnost).
   brainHistoryDays: 30,
 
+  // --- House gas (dvosmerni regulator na UKUPNOM RTP-u) ---
+  // Kad ukupni RTP padne ispod praga, "gas" blago podize EV igracima koji su
+  // ispod svoje mete, dok se kuca ne vrati na metu oporavka. Histereza:
+  // pali se na trigger, gasi tek na recover. Tvrdi plafon ostaje defaultTargetRtp.
+  gasTriggerRtp: 0.91, // ispod ovoga -> gas se PALI
+  gasRecoverRtp: 0.945, // dostigne ovo -> gas se GASI (jastuk ispod 95)
+  gasGain: 3.0, // koliko jako gura (mnozi razliku do mete oporavka)
+  gasMaxBoost: 0.35, // maks dodatak na requestedRtp po potezu (da bude postepeno)
+  gasFullNeed: 0.1, // potreba igraca (meta - efektivni) za PUN gas (10 poena)
+
   // --- Jackpot ---
   // Ukupan procenat svake uplate koji ide na svih 10 jackpotova.
   jackpotContributionTotalPct: 0.02,

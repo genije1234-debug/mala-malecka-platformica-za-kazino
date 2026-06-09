@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, getToken, setToken } from "./api.ts";
 import { useJackpots } from "./ws.ts";
+import { useWakeLock } from "./useWakeLock.ts";
 import { JackpotRail } from "./components/JackpotRail.tsx";
 import { Login } from "./pages/Login.tsx";
 import { Lobby } from "./pages/Lobby.tsx";
@@ -34,6 +35,9 @@ export function App() {
   const [gameId, setGameId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const jackpots = useJackpots();
+
+  // Drži ekran telefona budnim dok je igrač ulogovan (sprečava screen saver/zatamnjenje).
+  useWakeLock(!!profile);
 
   const refreshProfile = useCallback(async () => {
     try {

@@ -3,6 +3,7 @@ import cors from "cors";
 import http from "node:http";
 import { config } from "./config.ts";
 import { initSchema } from "./db.ts";
+import { migrate } from "./migrate.ts";
 import { seedDatabase } from "./seedData.ts";
 import { api } from "./routes.ts";
 import { initWebSocket } from "./ws.ts";
@@ -11,6 +12,7 @@ import { startBots } from "./bots.ts";
 
 initSchema();
 seedDatabase();
+migrate(); // lagane migracije + backfill brojaca za postojece baze
 
 const app = express();
 // Iza proxy/tunela (Cloudflare) – da req.ip čita stvarni IP (za rate-limit po IP-u).

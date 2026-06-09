@@ -9,6 +9,7 @@ import { walletOp, getBalance } from "./wallet.ts";
 import { computeSteering, recordOutcome, effectiveRtp } from "./brain.ts";
 import { applyMaxWinGuard } from "./maxWinGuard.ts";
 import { recordStake, recordReturn, capWin } from "./houseGovernor.ts";
+import { recordRoundStat } from "./gameStats.ts";
 import { contribute, checkAndTrigger } from "./jackpot.ts";
 import { accrue, consumeGranted } from "./freebet.ts";
 import { trackEvent, updateBehaviorOnBet } from "./behavior.ts";
@@ -182,7 +183,10 @@ function settle(
   run(`UPDATE casino_rounds SET closed_at=? WHERE round_id=?`, [nowIso(), rid]);
   releaseLock(playerId);
 
-  if (mode === "REAL") recordOutcome(playerId, bet, finalWin);
+  if (mode === "REAL") {
+    recordOutcome(playerId, bet, finalWin);
+    recordRoundStat(round.game_id, bet, finalWin); // brojaci u hodu po igri
+  }
   const won = finalWin > 0;
   trackEvent({ playerId, sessionId, type: won ? "WIN" : "LOSS", gameId: round.game_id, amount: finalWin });
   if (jackpotWin) trackEvent({ playerId, sessionId, type: "JACKPOT_WIN", gameId: round.game_id, amount: jackpotWin.amount });
