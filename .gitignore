@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+*.log
+.env
+.env.local
+
+# Local SQLite database files
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+backend/data/
+
+.DS_Store
+.vscode/

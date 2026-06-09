@@ -1,1 +1,5 @@
-Pocetni fajl za kazino projekat.
+Lucky Brain Casino — Casino Engine.
+
+Pokretanje: `npm install` pa `npm run dev` (vidi README.md).
+Backend: http://localhost:4000  |  Frontend: http://localhost:5173
+Nalozi: igrac1 / igrac123  •  admin / admin123

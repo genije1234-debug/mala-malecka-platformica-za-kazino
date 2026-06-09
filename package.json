@@ -1,0 +1,25 @@
+{
+  "name": "casino-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mobile-first casino engine sa centralnim mozgom (RTP kriva po igracu), 10 jackpotova, free bet sistemom i jednim game engine-om za sve igre.",
+  "workspaces": [
+    "shared",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "postinstall": "echo Workspaces installed.",
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "build": "npm run build --workspace frontend",
+    "seed": "npm run seed --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=22.5.0"
+  }
+}

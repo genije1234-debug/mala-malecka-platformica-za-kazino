@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/ws.ts","./src/components/jackpotrail.tsx","./src/pages/admin.tsx","./src/pages/game.tsx","./src/pages/lobby.tsx","./src/pages/login.tsx","./src/pages/profile.tsx"],"version":"5.9.3"}
