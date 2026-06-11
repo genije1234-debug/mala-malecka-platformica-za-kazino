@@ -183,7 +183,7 @@ export function Slot({
     const stagger = sp.stagger;
 
     try {
-      const res = await api.post<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode });
+      const res = await api.postIdem<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode });
       const o: any = res.outcome;
       const finalGrid: string[][] = Array.isArray(o?.grid) ? o.grid : randomGrid();
 

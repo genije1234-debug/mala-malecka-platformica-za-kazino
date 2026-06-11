@@ -6,6 +6,7 @@ import { grantFreebet, getFreebet } from "./services/freebet.ts";
 import { getBehavior } from "./services/behavior.ts";
 import { expireInteractiveRound } from "./services/interactive.ts";
 import { audit } from "./services/audit.ts";
+import { retentionTick } from "./services/retention.ts";
 
 const timers: NodeJS.Timeout[] = [];
 
@@ -18,6 +19,12 @@ export function startWorkers(): void {
 
   // 3) Recovery worker.
   timers.push(setInterval(recoveryTick, 12000));
+
+  // 4) Retention (cistacica): brise staru papirologiju da baza ostane mala.
+  timers.push(setInterval(() => {
+    const n = retentionTick();
+    if (n > 0) console.log(`[retention] obrisano ${n} starih redova`);
+  }, 5 * 60 * 1000));
 }
 
 export function stopWorkers(): void {

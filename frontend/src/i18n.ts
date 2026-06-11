@@ -15,6 +15,9 @@ export function translate(code: string): string {
     ROUND_NOT_FOUND: "Runda nije pronađena",
     NOTHING_REVEALED: "Otvori bar jedno polje",
     WRONG_GAME: "Pogrešan tip igre",
+    NETWORK: "Prekid veze sa serverom — pokušaj ponovo",
+    TIMEOUT: "Server ne odgovara — pokušaj ponovo",
+    TOO_MANY_REQUESTS: "Previše zahteva — uspori malo",
   };
   return map[code] || code;
 }

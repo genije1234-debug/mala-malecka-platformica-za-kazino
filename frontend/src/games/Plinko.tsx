@@ -42,7 +42,7 @@ export function Plinko({
     setWin(null);
     setLanded(null);
     try {
-      const res = await api.post<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode });
+      const res = await api.postIdem<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode });
       const o = res.outcome as PlinkoOutcome;
       setOutcome(o);
       animate(o, res);

@@ -21,6 +21,16 @@ app.set("trust proxy", 1);
 app.use(cors(config.corsOrigin ? { origin: config.corsOrigin.split(",").map((s) => s.trim()) } : {}));
 app.use(express.json());
 
+// Dijagnostika "prekida veze": loguj svaki zahtev koji traje > 1s da vidimo sta koci.
+app.use((req, res, next) => {
+  const t0 = performance.now();
+  res.on("finish", () => {
+    const ms = performance.now() - t0;
+    if (ms > 1000) console.warn(`[SLOW ${Math.round(ms)}ms] ${req.method} ${req.originalUrl} -> ${res.statusCode}`);
+  });
+  next();
+});
+
 app.get("/health", (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 
 app.use("/api/v1/casino", api);

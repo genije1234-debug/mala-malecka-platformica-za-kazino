@@ -11,7 +11,7 @@ import { computeSteering, recordOutcome, effectiveRtp } from "./brain.ts";
 import { playGame, type GameConfig, type PlayOptions } from "../games/engines.ts";
 import { generateAndLog } from "./rng.ts";
 import { applyMaxWinGuard } from "./maxWinGuard.ts";
-import { recordStake, recordReturn, capWin } from "./houseGovernor.ts";
+import { recordStake, recordReturn, capWin, houseBudget } from "./houseGovernor.ts";
 import { recordRoundStat } from "./gameStats.ts";
 import { contribute, checkAndTrigger } from "./jackpot.ts";
 import { accrue, getFreebet, consumeGranted } from "./freebet.ts";
@@ -119,7 +119,10 @@ export function playRound(params: {
       max_win_multiplier: game.max_win_multiplier,
       config_json: safeJson(game.config_json),
     };
-    const result = playGame(cfg, requestedRtp, params.options ?? {});
+    // Plafon za engine: grid koji ne moze CEO da se isplati ne sme ni da se prikaze
+    // (prikaz i isplata moraju biti 1:1; bez naknadnog secenja dobitka).
+    const budgetCap = Math.max(0, houseBudget()) / bet;
+    const result = playGame(cfg, requestedRtp, { ...(params.options ?? {}), maxMultiplier: budgetCap });
     setStatus(rid, "RESULT_GENERATED");
 
     // 7) RNG audit + hash chain.

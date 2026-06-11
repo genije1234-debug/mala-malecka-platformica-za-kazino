@@ -54,10 +54,14 @@ export function updateBehaviorOnBet(playerId: string, gameId: string, bet: numbe
   if (lastWasLoss && trend === "UP") tilt = clamp(tilt + 0.15, 0, 1);
   else tilt = clamp(tilt - 0.03, 0, 1);
 
-  // Omiljena igra = najcesca u poslednjih 200 betova.
+  // Omiljena igra = najcesca u poslednjih 200 betova (OGRANICENO na 200 — bez
+  // limita je ovo skeniralo CELU istoriju igraca na svakom spinu).
   const favRow = get<{ game_id: string }>(
-    `SELECT game_id FROM player_events WHERE player_id = ? AND event_type='BET' AND game_id IS NOT NULL
-     GROUP BY game_id ORDER BY COUNT(*) DESC LIMIT 1`,
+    `SELECT game_id FROM (
+       SELECT game_id FROM player_events
+       WHERE player_id = ? AND event_type='BET' AND game_id IS NOT NULL
+       ORDER BY created_at DESC LIMIT 200
+     ) GROUP BY game_id ORDER BY COUNT(*) DESC LIMIT 1`,
     [playerId],
   );
 

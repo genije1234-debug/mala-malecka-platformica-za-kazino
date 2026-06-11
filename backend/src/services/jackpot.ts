@@ -46,7 +46,13 @@ function balancerWeights(jackpots: any[]): number[] {
   });
 }
 
-/** Dodaje doprinos tek POSLE potvrdjenog BET_DEBIT-a. */
+/**
+ * Dodaje doprinos tek POSLE potvrdjenog BET_DEBIT-a.
+ * Jackpot pool-ovi se i dalje pune po jackpotu (UPDATE jackpots), ali se u
+ * jackpot_contributions pise SAMO 1 zbirni red po spinu (jackpot_id='POOL',
+ * tacna raspodela u split_json) umesto 6-7 redova — to je bilo najvece
+ * punjenje baze. Refund ostaje tacan jer cita split_json.
+ */
 export function contribute(playerId: string, gameId: string, roundId: string, betAmount: number): number {
   const total = money(betAmount * config.jackpotContributionTotalPct);
   if (total <= 0) return 0;
@@ -56,21 +62,23 @@ export function contribute(playerId: string, gameId: string, roundId: string, be
     if (jackpots.length === 0) return;
     const weights = balancerWeights(jackpots);
     const sum = weights.reduce((s, w) => s + w, 0) || 1;
+    const split: Record<string, number> = {};
     jackpots.forEach((j, i) => {
       const part = money(total * (weights[i] / sum));
       if (part <= 0) return;
+      split[j.jackpot_id] = part;
       run(`UPDATE jackpots SET current_amount = current_amount + ?, total_contributions = total_contributions + ?, updated_at=? WHERE jackpot_id=?`, [
         part,
         part,
         nowIso(),
         j.jackpot_id,
       ]);
-      run(
-        `INSERT INTO jackpot_contributions (contribution_id, round_id, player_id, game_id, jackpot_id, amount, status, created_at)
-         VALUES (?,?,?,?,?,?, 'APPLIED', ?)`,
-        [uid("jc"), roundId, playerId, gameId, j.jackpot_id, part, nowIso()],
-      );
     });
+    run(
+      `INSERT INTO jackpot_contributions (contribution_id, round_id, player_id, game_id, jackpot_id, amount, status, split_json, created_at)
+       VALUES (?,?,?,?, 'POOL', ?, 'APPLIED', ?, ?)`,
+      [uid("jc"), roundId, playerId, gameId, total, JSON.stringify(split), nowIso()],
+    );
   });
   return total;
 }
@@ -80,18 +88,25 @@ export function reverseContributions(roundId: string, reason: string): void {
   const contribs = all<any>(`SELECT * FROM jackpot_contributions WHERE round_id=? AND status='APPLIED'`, [roundId]);
   tx(() => {
     for (const c of contribs) {
-      run(`UPDATE jackpots SET current_amount = current_amount - ?, total_contributions = total_contributions - ?, updated_at=? WHERE jackpot_id=?`, [
-        c.amount,
-        c.amount,
-        nowIso(),
-        c.jackpot_id,
-      ]);
+      // Novi format: 1 zbirni red sa split_json; stari format: red po jackpotu.
+      const parts: Array<{ jackpotId: string; amount: number }> =
+        c.jackpot_id === "POOL" && c.split_json
+          ? Object.entries(JSON.parse(c.split_json) as Record<string, number>).map(([jackpotId, amount]) => ({ jackpotId, amount }))
+          : [{ jackpotId: c.jackpot_id, amount: c.amount }];
+      for (const p of parts) {
+        run(`UPDATE jackpots SET current_amount = current_amount - ?, total_contributions = total_contributions - ?, updated_at=? WHERE jackpot_id=?`, [
+          p.amount,
+          p.amount,
+          nowIso(),
+          p.jackpotId,
+        ]);
+        run(
+          `INSERT INTO contribution_refund_log (refund_id, contribution_id, round_id, jackpot_id, amount, reason, created_at)
+           VALUES (?,?,?,?,?,?,?)`,
+          [uid("crl"), c.contribution_id, roundId, p.jackpotId, p.amount, reason, nowIso()],
+        );
+      }
       run(`UPDATE jackpot_contributions SET status='REVERSED' WHERE contribution_id=?`, [c.contribution_id]);
-      run(
-        `INSERT INTO contribution_refund_log (refund_id, contribution_id, round_id, jackpot_id, amount, reason, created_at)
-         VALUES (?,?,?,?,?,?,?)`,
-        [uid("crl"), c.contribution_id, roundId, c.jackpot_id, c.amount, reason, nowIso()],
-      );
     }
   });
 }

@@ -267,9 +267,10 @@ CREATE TABLE IF NOT EXISTS jackpot_contributions (
   round_id   TEXT,
   player_id  TEXT NOT NULL,
   game_id    TEXT,
-  jackpot_id TEXT NOT NULL,
+  jackpot_id TEXT NOT NULL,            -- 'POOL' = 1 zbirni red po spinu (raspodela u split_json)
   amount     REAL NOT NULL,
   status     TEXT NOT NULL DEFAULT 'APPLIED', -- APPLIED | REVERSED | REFUNDED
+  split_json TEXT,                     -- tacna raspodela po jackpotu (za refund)
   created_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_contrib_round ON jackpot_contributions(round_id);
@@ -433,3 +434,18 @@ CREATE TABLE IF NOT EXISTS house_ledger (
   total_returned REAL NOT NULL DEFAULT 0,
   updated_at     TEXT
 );
+
+-- Gamble (dupliranje dobitka) sesije: jedna po dobitnoj rundi.
+CREATE TABLE IF NOT EXISTS gamble_sessions (
+  session_id     TEXT PRIMARY KEY,
+  round_id       TEXT NOT NULL UNIQUE,
+  player_id      TEXT NOT NULL,
+  current_amount REAL NOT NULL,
+  attempts_used  INTEGER NOT NULL DEFAULT 0,
+  max_attempts   INTEGER NOT NULL DEFAULT 5,
+  history_json   TEXT NOT NULL DEFAULT '[]',
+  status         TEXT NOT NULL DEFAULT 'OPEN', -- OPEN | LOST | CLOSED
+  created_at     TEXT NOT NULL,
+  updated_at     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_gamble_player ON gamble_sessions(player_id, status);

@@ -8,6 +8,7 @@ import { Crash } from "../games/Crash.tsx";
 import { Mines } from "../games/Mines.tsx";
 import { Plinko } from "../games/Plinko.tsx";
 import { Slot } from "../games/Slot.tsx";
+import { Hot40 } from "../games/Hot40.tsx";
 
 export function GameScreen({
   gameId,
@@ -31,6 +32,13 @@ export function GameScreen({
   }, [gameId]);
 
   if (!game) return <div className="card">Učitavanje...</div>;
+
+  // Igre sa punom obradom: zauzimaju ceo ekran (sopstveni header/kontrole).
+  if (game.engine === "hot40") {
+    return (
+      <Hot40 game={game} profile={profile} jackpots={jackpots} onUpdate={onUpdate} onBack={onBack} showToast={showToast} />
+    );
+  }
 
   const isCrash = game.game_type === "crash";
   const isMines = game.theme.includes("mine");
@@ -88,7 +96,7 @@ function ClassicGame({
     setResult(null);
     try {
       const options = needsTarget ? { target } : undefined;
-      const res = await api.post<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode, options });
+      const res = await api.postIdem<PlayResult>("/round/start", { gameId: game.game_id, betAmount: bet, mode, options });
       await new Promise((r) => setTimeout(r, 450));
       setResult(res);
       if (res.jackpot_win) setJackpotPop(res.jackpot_win);

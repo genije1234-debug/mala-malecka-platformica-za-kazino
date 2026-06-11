@@ -38,6 +38,9 @@ export function emitEvent(params: {
   priority?: number;
   payload?: unknown;
 }): void {
+  // Rutinski low-priority eventi (npr. ROUND_CLOSED svake runde) se ne pisu:
+  // niko ih ne konzumira, a punili su bazu 1 red po spinu.
+  if ((params.priority ?? 50) < 50) return;
   run(
     `INSERT INTO event_outbox (event_id, event_type, entity_type, entity_id, round_id, priority_level, payload, status, created_at, next_retry_at)
      VALUES (?,?,?,?,?,?,?, 'PENDING', ?, ?)`,

@@ -63,6 +63,14 @@ export const config = {
   // --- Round / lock ---
   maxRoundDurationSec: 120,
 
+  // --- Retention (cistacica baze) ---
+  // Logovi/papirologija (round eventi, jackpot doprinosi, rng, outbox, player
+  // eventi, transakcije...) cuvaju se ovoliko dana pa se automatski brisu.
+  // KPI brojke NE zavise od ovoga (zive u game_stats / house_ledger / jackpots).
+  retentionDays: Number(process.env.RETENTION_DAYS ?? 1),
+  // Zavrsene runde (istorija igranja) cuvaju se duze.
+  roundsRetentionDays: Number(process.env.ROUNDS_RETENTION_DAYS ?? 3),
+
   // --- Startni balans demo igraca u mock walletu ---
   startingWalletBalance: 1000,
 

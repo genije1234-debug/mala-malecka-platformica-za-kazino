@@ -1,0 +1,1225 @@
+/* ===== 40 Blazing Hot — portret layout (EGT/Amusnet stil) ===== */
+
+.h40 {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-family: inherit;
+  color: #fff;
+}
+
+/* ---------- Gornja traka platformskih jackpota: KRUPNO i sjajno ---------- */
+.h40-topbar {
+  display: flex;
+  align-items: stretch;
+  background: linear-gradient(180deg, #1a1a1a 0%, #050505 100%);
+  border-bottom: 2px solid #d9a821;
+  box-shadow: 0 2px 12px rgba(217, 168, 33, 0.25);
+  min-height: 62px;
+  flex: 0 0 auto;
+}
+.h40-top-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  background: linear-gradient(180deg, #2a2008, #100c02);
+  border-right: 1px solid #5a4a1a;
+}
+.h40-top-icon .ico { font-size: 22px; filter: sepia(1) saturate(4) hue-rotate(-12deg) drop-shadow(0 0 6px rgba(255, 200, 60, 0.5)); }
+.h40-top-icon .lbl { font-size: 9px; color: #ffd24a; font-weight: 700; }
+.h40-top-jps {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  animation: h40fade 0.5s ease;
+}
+@keyframes h40fade { from { opacity: 0; } to { opacity: 1; } }
+.h40-top-jp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-right: 1px solid #3a3013;
+  background: radial-gradient(80% 100% at 50% 0%, rgba(217, 168, 33, 0.1) 0%, transparent 70%);
+}
+.h40-top-jp .nm {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.h40-top-jp .nm i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px currentColor;
+}
+.h40-top-jp b {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 220, 120, 0.45), 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.h40-fs {
+  background: none;
+  border: none;
+  color: #cfd6e4;
+  font-size: 20px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+/* ---------- Telo ---------- */
+.h40-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+  background:
+    radial-gradient(120% 60% at 50% 30%, #4d0a08 0%, #2b0505 55%, #160202 100%);
+  overflow: hidden;
+}
+
+/* ---------- Header: 2 velika jackpota gore, 2 manja dole, logo izmedju ---------- */
+.h40-head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 6px 30px; /* prostor za deo logo slike koji pada ispod plocica */
+  flex: 0 0 auto;
+  z-index: 4;
+  background:
+    radial-gradient(70% 130% at 50% 30%, rgba(190, 35, 8, 0.6) 0%, transparent 72%);
+}
+.h40-jp-row { display: flex; align-items: center; }
+/* gornji red: velike plocice, mali razmak za emblem; donji red: KRACE plocice
+   (kao original ~25% sirine), sirok centar za logo */
+.h40-jp-gap { flex: 0 0 88px; }
+.h40-jp-gap.wide { flex: 1 1 auto; }
+.h40-jp-row.sm .h40-plq { flex: 0 0 28%; min-width: 0; }
+.h40-jp-row.big .h40-plq { min-width: 0; }
+/* plocica kao original: glosirana crna, zlatni dupli rub, KRUPNI beli brojevi,
+   znak karte levo (malo viri), crveni RSD tag uz desnu ivicu */
+.h40-plq {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(180deg, #4a4a4a 0%, #161616 38%, #000 52%, #1c1c1c 100%);
+  border: 1.5px solid #f0e6c8;
+  outline: 1px solid #6a5a20;
+  border-radius: 7px;
+  padding: 2px 20px 2px 8px;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(217, 168, 33, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  min-height: 32px;
+}
+.h40-plq.big { min-height: 42px; }
+.h40-plq.big .h40-roll { font-size: min(20px, 4.2vw); }
+.h40-plq.sm .h40-roll { font-size: min(13px, 2.9vw); }
+.h40-plq .h40-roll {
+  color: #fff;
+  flex: 1;
+  justify-content: center;
+  font-weight: 800;
+  overflow: hidden;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 255, 255, 0.25);
+}
+.h40-plq .sg {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.8));
+}
+.h40-plq.sm .sg { font-size: 14px; }
+.h40-plq.spade .sg, .h40-plq.club .sg { color: #f0f0f0; }
+.h40-plq.heart .sg, .h40-plq.diamond .sg { color: #ff3030; }
+/* tag valute kao original: crvena USPRAVNA traka uz celu desnu ivicu plocice,
+   BELA slova rotirana (citaju se odozgo nadole) */
+.h40-plq .tag {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  background: linear-gradient(90deg, #e02828, #8a0c0c);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 0 2px;
+  border-radius: 0 5px 5px 0;
+  border-left: 1px solid rgba(0, 0, 0, 0.55);
+  z-index: 2;
+}
+.h40-plq.sm .tag { font-size: 6px; letter-spacing: 0.5px; }
+.h40-plq.empty { visibility: hidden; }
+/* logo = jedna slika na crnoj podlozi; mix-blend-mode:screen "skida" crno
+   pa nema bele/crne kutije — vide se samo svetli pikseli. ZIV: pulsira
+   (scale + brightness). Manji, da ne zaklapa jackpot plocice. */
+.h40-logo-img {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  transform: translateX(-50%);
+  width: min(188px, 44vw);
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: h40logopulse 1.5s ease-in-out infinite alternate;
+}
+@keyframes h40logopulse {
+  from { transform: translateX(-50%) scale(1); filter: brightness(1); }
+  to { transform: translateX(-50%) scale(1.05); filter: brightness(1.28) saturate(1.12); }
+}
+/* stari suit-stil ostaje za gamble ekran */
+.h40-suits { display: flex; flex-direction: column; gap: 4px; }
+.h40-suit {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(#2b2b2b, #0d0d0d);
+  border: 1px solid #555;
+  border-radius: 14px;
+  padding: 3px 8px;
+  font-size: 11px;
+  justify-content: flex-start;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+.h40-suits.right .h40-suit { justify-content: flex-end; }
+.h40-suit .sg { font-size: 13px; }
+.h40-suit.spade .sg, .h40-suit.club .sg { color: #e8e8e8; }
+.h40-suit.heart .sg, .h40-suit.diamond .sg { color: #ff4444; }
+.h40-suit b { font-size: 11px; font-weight: 800; white-space: nowrap; }
+
+/* ---------- Rolne (tamnoplava polja + zlatna mreza, kao referenca) ---------- */
+.h40-reels-wrap {
+  margin: 2px 4px 0;
+  border: 2px solid #ffd24a;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #0b1126 0%, #070b18 60%, #04060f 100%);
+  box-shadow:
+    0 0 14px rgba(255, 200, 60, 0.35),
+    0 0 18px rgba(0, 0, 0, 0.8),
+    inset 0 0 34px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  flex: 0 0 auto;
+  position: relative;
+}
+.h40-reels-wrap.win { box-shadow: 0 0 26px rgba(255, 190, 40, 0.65), inset 0 0 30px rgba(0, 0, 0, 0.5); }
+.h40-reels {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  position: relative;
+}
+/* izmedju rolni SAMO vertikalna DUPLA zlatna linija (bez horizontalnih, kao original) */
+.h40-reel {
+  overflow: hidden;
+  position: relative;
+}
+.h40-reel:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 5px;
+  background: linear-gradient(90deg,
+    rgba(217, 168, 33, 0.75) 0 1px,
+    rgba(0, 0, 0, 0.85) 1px 4px,
+    rgba(217, 168, 33, 0.75) 4px 5px);
+  z-index: 4;
+  pointer-events: none;
+}
+.h40-reel-inner { will-change: transform; }
+.h40-spin-loop {
+  animation: h40loop 0.32s linear infinite;
+}
+@keyframes h40loop {
+  from { transform: translateY(calc(var(--cell) * -8)); }
+  to { transform: translateY(0); }
+}
+/* polja BEZ okvira po celiji — kolona je jedna tamna povrsina (kao original) */
+.h40-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background:
+    radial-gradient(95% 85% at 50% 45%, #121a30 0%, #0a0f20 65%, #060a16 100%);
+}
+/* simboli PUNE polje (kao original) — ogranicava ih visina celije */
+/* simboli iste visine, ali RAZVUCENI u sirinu da popune celiju (kao original) */
+.h40-cell img {
+  width: 97%;
+  height: 96%;
+  object-fit: fill;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.65));
+}
+.h40-cell { position: relative; }
+.h40-cell.hit {
+  box-shadow: inset 0 0 0 2px var(--hitc, #ffd24a);
+  border-radius: 4px;
+  z-index: 2;
+}
+.h40-cell.hit img {
+  animation: h40pulse 0.45s ease infinite alternate;
+  filter: drop-shadow(0 0 10px rgba(255, 210, 74, 0.9));
+  position: relative;
+  z-index: 2;
+}
+/* nedobitna polja se JAKO zatamne — jasno se vidi sta ucestvuje u dobitku */
+.h40-cell.dim img { opacity: 0.18; filter: brightness(0.55) saturate(0.6); }
+@keyframes h40pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.12); }
+}
+
+/* PLAMEN: vatra krece OD DNA polja i dize se NAGORE, jasni jezici */
+/* plamen: krece od DNA polja i dize se do malo iznad polovine (ne preko celog) */
+.h40-flame {
+  position: absolute;
+  left: -2%;
+  right: -2%;
+  bottom: -1%;
+  top: 38%;
+  pointer-events: none;
+  z-index: 3;
+  filter: saturate(1.4);
+  mix-blend-mode: screen;
+}
+.h40-flame i {
+  position: absolute;
+  bottom: 0;
+  transform-origin: 50% 100%;
+  border-radius: 50% 50% 22% 22% / 78% 78% 22% 22%; /* jezik plamena: siljast gore */
+}
+/* spoljni crveno-narandzasti jezik (najsiri, najvisi) */
+.h40-flame .f1 {
+  left: 6%;
+  width: 88%;
+  height: 96%;
+  background: linear-gradient(to top,
+    rgba(255, 60, 0, 0.95) 0%,
+    rgba(255, 90, 0, 0.85) 35%,
+    rgba(255, 60, 0, 0.45) 65%,
+    rgba(200, 20, 0, 0) 100%);
+  animation: h40rise 0.5s ease-in-out infinite alternate;
+}
+/* srednji narandzasto-zuti jezik */
+.h40-flame .f2 {
+  left: 18%;
+  width: 64%;
+  height: 74%;
+  background: linear-gradient(to top,
+    rgba(255, 150, 10, 0.95) 0%,
+    rgba(255, 180, 30, 0.9) 40%,
+    rgba(255, 120, 0, 0) 100%);
+  animation: h40rise 0.36s ease-in-out 0.08s infinite alternate-reverse;
+}
+/* unutrasnje belo-zuto jezgro pri dnu */
+.h40-flame .f3 {
+  left: 32%;
+  width: 36%;
+  height: 46%;
+  background: linear-gradient(to top,
+    rgba(255, 250, 215, 0.98) 0%,
+    rgba(255, 220, 100, 0.92) 45%,
+    rgba(255, 180, 40, 0) 100%);
+  animation: h40rise 0.28s ease-in-out infinite alternate;
+}
+/* varnice koje se odvajaju i lete nagore */
+.h40-flame .f4 {
+  left: 44%;
+  width: 12%;
+  height: 14%;
+  bottom: 55%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 210, 90, 0.95) 0%, rgba(255, 140, 20, 0) 70%);
+  animation: h40ember 0.6s ease-out infinite;
+}
+.h40-flame .f5 {
+  left: 22%;
+  width: 9%;
+  height: 11%;
+  bottom: 48%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 180, 60, 0.9) 0%, rgba(255, 120, 10, 0) 70%);
+  animation: h40ember 0.75s ease-out 0.3s infinite;
+}
+/* jezik raste odozdo: izvor je dno, vrh treperi gore */
+@keyframes h40rise {
+  from { transform: scaleY(0.72) scaleX(1.05) skewX(-2deg); }
+  to { transform: scaleY(1.08) scaleX(0.92) skewX(3deg); }
+}
+@keyframes h40ember {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateY(-260%) scale(0.3); opacity: 0; }
+}
+.h40-lines-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 4px rgba(255, 210, 74, 0.8));
+}
+
+/* ---------- Status red (kao original: krupno belo, sivi label) ---------- */
+.h40-status {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  align-items: center;
+  padding: 7px 10px 4px;
+  gap: 4px;
+  flex: 0 0 auto;
+  background: linear-gradient(#171717, #0c0c0c);
+}
+.h40-meter { display: flex; flex-direction: column; line-height: 1.2; }
+.h40-meter.right { text-align: right; }
+.h40-meter small { font-size: 10px; color: #a8a8a8; letter-spacing: 0.5px; font-weight: 700; }
+.h40-meter b { font-size: 20px; font-weight: 800; color: #fff; }
+.h40-meter i { font-style: normal; font-size: 10px; color: #fff; font-weight: 700; }
+.h40-msg {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 36px;
+}
+.h40-msg-line { font-size: 11px; letter-spacing: 0.5px; color: #fff; }
+.h40-msg.win .h40-msg-line { color: #fff; }
+.h40-msg-total {
+  font-size: 20px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+}
+
+/* ---------- Bet red (uvek vidljiv) ---------- */
+.h40-betrow-wrap { flex: 0 0 auto; min-height: 68px; background: #0c0c0c; padding-bottom: 2px; }
+.h40-betrow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  padding: 2px 6px;
+  flex: 0 0 auto;
+}
+/* horizontalni scroll sa snap-om: tacno 5 KRUPNIJIH plocica na ekranu (kao original) */
+.h40-betrow.scroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.h40-betrow.scroll::-webkit-scrollbar { display: none; }
+.h40-betrow.scroll .h40-bet {
+  flex: 0 0 calc((100% - 20px) / 5);
+  scroll-snap-align: center;
+}
+/* plocica uloga kao original: crna pozadina, BELI okvir, beli broj,
+   crveni RSD tag u uglu, zuti natpis (STOP ALL / COLLECT) ispod */
+.h40-bet {
+  position: relative;
+  background: linear-gradient(180deg, #2a2a2a 0%, #0d0d0d 60%, #161616 100%);
+  border: 1.5px solid #f0f0f0;
+  border-radius: 6px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 2px 5px;
+  min-height: 60px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+/* valuta kao original: uska tamna traka preko VRHA plocice, zlatna slova, centrirano */
+.h40-bet .rsd {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(#3a3a3a, #141414);
+  border-bottom: 1px solid rgba(255, 210, 74, 0.35);
+  color: #ffd24a;
+  font-size: 7px;
+  font-weight: 800;
+  padding: 1px 0;
+  text-align: center;
+  letter-spacing: 1px;
+  border-radius: 4px 4px 0 0;
+}
+.h40-bet.on .rsd { background: linear-gradient(#2c5e12, #16380a); }
+.h40-bet b { font-size: 18px; font-weight: 800; line-height: 1.1; }
+.h40-bet .cap { font-size: 9px; font-weight: 800; letter-spacing: 0.5px; }
+.h40-bet .cap.stop { color: #ffd24a; }
+.h40-bet .cap.collect {
+  color: #ffd24a;
+  animation: h40collectpulse 0.7s ease infinite alternate;
+}
+@keyframes h40collectpulse {
+  from { filter: brightness(1); opacity: 1; }
+  to { filter: brightness(1.5); opacity: 0.75; }
+}
+.h40-bet.on {
+  background: linear-gradient(180deg, #5cc41e 0%, #1d6a06 70%);
+  border-color: #f0f0f0;
+}
+.h40-bet.on .rsd { color: #ffd24a; }
+.h40-bet:disabled { opacity: 0.55; }
+
+/* ---------- Kontrole (sjajni ambijent kao original) ---------- */
+.h40-controls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  padding: 6px 18px 2px;
+  flex: 1 0 auto;
+  background:
+    radial-gradient(65% 90% at 50% 10%, rgba(150, 25, 8, 0.4) 0%, transparent 75%),
+    repeating-linear-gradient(0deg, transparent 0 5px, rgba(255, 60, 20, 0.045) 5px 6px);
+}
+.h40-ctrl {
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.h40-auto-wrap { position: relative; }
+/* tamno okruglo dugme sa zlatnim sjajem (kao original) */
+.h40-ctrl.auto {
+  width: 54px;
+  height: 54px;
+  background: radial-gradient(circle at 35% 28%, #3a3a3a, #0a0a0a 75%);
+  border: 1.5px solid #9a8a4a;
+  color: #d9c08a;
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(217, 168, 33, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.h40-ctrl.auto.on {
+  border-color: #ffd24a;
+  color: #ffd24a;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 14px rgba(255, 210, 74, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+/* picker broja spinova: vertikalna lista PREKO rolni, levo poravnata (kao original) */
+.h40-spin-picker {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  background: rgba(8, 8, 8, 0.92);
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 8;
+}
+.h40-spin-picker button {
+  background: linear-gradient(#3a3a3a, #101010);
+  border: 1px solid #777;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 7px 18px;
+  cursor: pointer;
+}
+.h40-spin-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+.h40-ctrl.spin {
+  width: 92px;
+  height: 92px;
+  background: radial-gradient(circle at 35% 28%, #2a2a2a, #050505 72%);
+  border: 2.5px solid #ffd24a;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.8),
+    0 0 16px rgba(255, 200, 60, 0.5),
+    inset 0 2px 2px rgba(255, 255, 255, 0.22),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.7);
+  animation: h40spinglow 1.8s ease-in-out infinite alternate;
+}
+@keyframes h40spinglow {
+  from { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 10px rgba(255, 200, 60, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.22), inset 0 -6px 12px rgba(0, 0, 0, 0.7); }
+  to { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 22px rgba(255, 210, 80, 0.7), inset 0 2px 2px rgba(255, 255, 255, 0.22), inset 0 -6px 12px rgba(0, 0, 0, 0.7); }
+}
+.h40-ctrl.spin:active { transform: scale(0.96); }
+.h40-ctrl.spin:disabled { opacity: 0.5; }
+.h40-spin-ico { width: 54px; height: 54px; color: #fff; }
+.h40-ctrl.spin.spinning .h40-spin-ico { animation: h40rot 0.8s linear infinite; }
+@keyframes h40rot { to { transform: rotate(360deg); } }
+/* pilula brzine: crni oval sa zlatnim okvirom i sjajem (kao original) */
+.h40-quick {
+  margin-top: 5px;
+  background: linear-gradient(#242424, #050505);
+  border: 1.5px solid #ffd24a;
+  border-radius: 14px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 4px 16px;
+  cursor: pointer;
+  display: flex;
+  gap: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 8px rgba(255, 210, 74, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.h40-quick i { font-style: normal; color: #4a4a4a; transition: color 0.15s ease; }
+.h40-quick i.on { color: #ffd24a; text-shadow: 0 0 6px rgba(255, 210, 74, 0.7); }
+
+/* izbor brzine u podesavanjima */
+.h40-speed-opts { display: flex; gap: 8px; }
+.h40-speed-opt {
+  background: linear-gradient(#3a3a3a, #101010);
+  border: 1px solid #6a6a6a;
+  border-radius: 8px;
+  color: #bdbdbd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 7px 10px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.h40-speed-opt small { font-size: 8px; letter-spacing: 0.5px; }
+.h40-speed-opt.on {
+  background: linear-gradient(#48a818, #1d6a06);
+  border-color: #8bd84a;
+  color: #fff;
+}
+.h40-ctrl.chips {
+  width: 54px;
+  height: 54px;
+  background: radial-gradient(circle at 35% 28%, #3a3a3a, #0a0a0a 75%);
+  border: 1.5px solid #9a8a4a;
+  color: #d9c08a;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 8px rgba(217, 168, 33, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ---------- Donja traka: kucica levo, zvuk + meni desno (kao original) ---------- */
+.h40-bottombar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 18px 2px;
+  flex: 0 0 auto;
+}
+.h40-bb-right { display: flex; align-items: center; gap: 16px; }
+.h40-bottombar button {
+  background: none;
+  border: none;
+  color: #f0f0f0;
+  cursor: pointer;
+  padding: 6px;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.25));
+}
+
+/* ---------- Overlay / paneli ---------- */
+.h40-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.h40-panel {
+  width: min(94vw, 460px);
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #161616;
+  border: 1px solid #444;
+  border-radius: 10px;
+}
+.h40-panel-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #333;
+}
+.h40-x {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px;
+}
+.h40-bet-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
+  padding: 12px;
+}
+
+/* ---------- Sheet meni (settings/auto/info/history) ---------- */
+.h40-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  background: #0d0d0d;
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+}
+.h40-sheet-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 16px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #2c2c2c;
+  flex: 0 0 auto;
+}
+.h40-sheet-body { flex: 1; overflow-y: auto; padding: 14px; }
+.h40-sheet-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: #101b0a;
+  border-top: 1px solid #233517;
+  flex: 0 0 auto;
+}
+.h40-sheet-tabs button {
+  background: none;
+  border: none;
+  color: #9c9c9c;
+  padding: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+}
+.h40-sheet-tabs button.on { color: #8bd84a; }
+
+/* settings */
+.h40-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 4px;
+  font-size: 15px;
+}
+.h40-toggle {
+  width: 52px;
+  height: 28px;
+  border-radius: 16px;
+  background: #1c1c1c;
+  border: 1px solid #b8860b;
+  position: relative;
+  cursor: pointer;
+}
+.h40-toggle i {
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffd24a, #b8860b);
+  transition: left 0.18s ease;
+}
+.h40-toggle.on { background: #2c5e12; border-color: #8bd84a; }
+.h40-toggle.on i { left: 26px; }
+
+/* autoplay */
+.h40-auto h3 { margin: 4px 0 14px; font-size: 16px; letter-spacing: 0.5px; }
+.h40-slider-row { margin-bottom: 16px; }
+.h40-slider-top { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.h40-slider-top b small { color: #9c9c9c; }
+.h40-slider-row input[type="range"] { width: 100%; accent-color: #48a818; }
+.h40-slider-bounds { display: flex; justify-content: space-between; font-size: 10px; color: #8a8a8a; }
+.h40-packs {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin: 16px 0;
+}
+.h40-pack {
+  background: linear-gradient(#3a3a3a, #101010);
+  border: 1px solid #b8860b;
+  border-radius: 8px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 2px;
+  cursor: pointer;
+}
+.h40-pack b { font-size: 17px; }
+.h40-pack span { font-size: 9px; color: #ffd24a; }
+.h40-pack small { font-size: 8px; color: #bdbdbd; margin-top: 2px; }
+.h40-pack.on { background: linear-gradient(#48a818, #1d6a06); border-color: #8bd84a; }
+.h40-playnow {
+  display: block;
+  margin: 6px auto;
+  background: linear-gradient(#5cc41e, #1d6a06);
+  border: 2px solid #d9a821;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 1px;
+  padding: 10px 34px;
+  cursor: pointer;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.h40-auto-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  font-size: 12px;
+  color: #bdbdbd;
+}
+.h40-auto-foot b { color: #fff; }
+
+/* info / paytable */
+.h40-info { font-size: 13px; line-height: 1.45; color: #d6d6d6; }
+.h40-info-logo { text-align: center; margin-bottom: 10px; font-size: 22px; }
+.h40-info h3 { text-align: center; margin: 18px 0 8px; color: #fff; }
+.h40-info h3.hot { color: #ff8a00; letter-spacing: 1px; }
+.h40-info p { text-align: center; margin: 6px 0; }
+.h40-pay-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 8px 0;
+}
+.h40-pay-card img { width: 74px; height: 74px; object-fit: contain; }
+.h40-pay-card table td { padding: 1px 8px; font-size: 14px; }
+.h40-pay-card table td:first-child { color: #9c9c9c; text-align: right; }
+.h40-pay-card table td:last-child { font-weight: 800; }
+.h40-pay-card table small { color: #9c9c9c; font-weight: 400; }
+.h40-lines-map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.h40-line-mini {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 4px;
+  text-align: center;
+}
+.h40-line-mini span { font-size: 10px; color: #9c9c9c; }
+.h40-line-mini svg { width: 100%; height: 34px; display: block; }
+
+/* history */
+.h40-history { display: flex; flex-direction: column; align-items: center; }
+.h40-date-chip {
+  background: #a4d931;
+  color: #0d0d0d;
+  font-weight: 800;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-bottom: 12px;
+}
+.h40-hist-tabs {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 14px;
+}
+.h40-hist-tabs button {
+  background: none;
+  border: none;
+  color: #d6d6d6;
+  font-size: 13px;
+  padding: 6px 4px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.h40-hist-tabs button.on { color: #d4e157; border-bottom-color: #d4e157; }
+.h40-norec { color: #9c9c9c; font-size: 13px; margin-top: 16px; }
+.h40-hist-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  width: 100%;
+  padding: 7px 2px;
+  font-size: 12px;
+  border-bottom: 1px solid #1f1f1f;
+}
+.h40-hist-row .t { color: #9c9c9c; }
+.h40-hist-row span:nth-child(2) { text-align: center; }
+.h40-hist-row span:last-child { text-align: right; }
+.h40-hist-row .w { color: #8bd84a; font-weight: 700; }
+
+/* ---------- Kontekstualne kontrole ---------- */
+/* broj preostalih autoplay rundi: beli zaobljeni kvadrat u crnom dugmetu (original) */
+.h40-auto-count {
+  min-width: 44px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: #fff;
+  color: #0a0a0a;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.h40-ctrl.gamble {
+  width: 52px;
+  height: 52px;
+  background: radial-gradient(circle at 35% 30%, #ffb347, #a85b00 70%);
+  border: 2px solid #ffd24a;
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 180, 40, 0.5);
+  animation: h40collectpulse 0.7s ease infinite alternate;
+}
+.h40-msg-sym {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  vertical-align: -5px;
+  margin: 0 2px;
+}
+.h40-msg-line { display: inline-flex; align-items: center; justify-content: center; gap: 2px; flex-wrap: wrap; }
+.h40-meter .winlbl { color: #ffd24a; }
+.h40-meter .winval {
+  color: #ffd24a;
+  font-size: 16px;
+  text-shadow: 0 0 10px rgba(255, 180, 40, 0.6);
+}
+
+/* ---------- Meta red (broj runde + sat) ---------- */
+.h40-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 9px;
+  color: #8a8a8a;
+  flex: 0 0 auto;
+}
+
+/* ---------- Rolling cifre na plocicama ---------- */
+.h40-roll { display: inline-flex; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.h40-roll .rd { display: inline-block; overflow: hidden; }
+.h40-roll .rdv { display: inline-block; animation: h40rolldig 0.35s ease; }
+@keyframes h40rolldig {
+  from { transform: translateY(-100%); opacity: 0.4; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ---------- GAMBLE ekran ---------- */
+.h40-gamble {
+  position: absolute;
+  inset: 0;
+  z-index: 65;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+  background:
+    radial-gradient(120% 70% at 50% 0%, rgba(120, 30, 10, 0.85) 0%, rgba(20, 4, 2, 0.96) 60%, #0a0101 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 10px;
+  overflow: hidden;
+}
+.h40-g-spots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(18% 60% at 30% 0%, rgba(255, 220, 140, 0.16) 0%, transparent 70%),
+    radial-gradient(18% 60% at 70% 0%, rgba(255, 220, 140, 0.16) 0%, transparent 70%);
+}
+.h40-g-suits {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex: 0 0 auto;
+}
+.h40-g-history { margin-top: 6px; text-align: center; flex: 0 0 auto; }
+.h40-g-history small { font-size: 9px; letter-spacing: 2px; color: #c9a36a; }
+.h40-g-hist-row { display: flex; gap: 5px; justify-content: center; margin-top: 4px; }
+.h40-g-mini {
+  width: 26px;
+  height: 36px;
+  border-radius: 4px;
+  background: #f5f0e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.6);
+}
+.h40-g-mini.back {
+  background:
+    repeating-linear-gradient(45deg, #7a1414 0 4px, #5e0d0d 4px 8px);
+  border: 1px solid #d9a821;
+}
+.h40-g-mini.red { color: #c81e1e; }
+.h40-g-mini.black { color: #111; }
+.h40-g-amounts {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px 0;
+  flex: 0 0 auto;
+}
+.h40-g-amt { text-align: center; }
+.h40-g-amt b {
+  display: block;
+  font-size: 19px;
+  font-weight: 900;
+  color: #ffd24a;
+  text-shadow: 0 0 12px rgba(255, 180, 40, 0.5);
+}
+.h40-g-amt b small { font-size: 11px; color: #c9a36a; }
+.h40-g-amt span { font-size: 9px; letter-spacing: 1.5px; color: #e8d9b0; }
+.h40-g-stage {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 200px;
+}
+.h40-g-podium {
+  position: absolute;
+  bottom: 8%;
+  width: 220px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(60% 100% at 50% 50%, rgba(255, 200, 80, 0.5) 0%, rgba(180, 120, 20, 0.18) 60%, transparent 100%);
+  filter: blur(2px);
+}
+.h40-g-card {
+  position: relative;
+  width: 128px;
+  height: 184px;
+  perspective: 700px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s ease;
+  transform: rotateY(0deg);
+}
+.h40-g-card .h40-g-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  backface-visibility: hidden;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.7), 0 0 22px rgba(255, 190, 60, 0.25);
+  transition: transform 0.5s ease;
+}
+.h40-g-face.back {
+  background:
+    repeating-linear-gradient(45deg, #7a1414 0 7px, #5e0d0d 7px 14px);
+  border: 2px solid #d9a821;
+  transform: rotateY(0deg);
+}
+.h40-g-face.front {
+  background: #f7f3ea;
+  border: 2px solid #cfc6b4;
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.h40-g-card.up .h40-g-face.back { transform: rotateY(180deg); }
+.h40-g-card.up .h40-g-face.front { transform: rotateY(360deg); }
+.h40-g-face.front .big { font-size: 64px; }
+.h40-g-face.front.red { color: #c81e1e; }
+.h40-g-face.front.black { color: #111; }
+.h40-g-face .corner { position: absolute; font-size: 20px; }
+.h40-g-face .corner.tl { top: 6px; left: 8px; }
+.h40-g-face .corner.br { bottom: 6px; right: 8px; transform: rotate(180deg); }
+.h40-g-banner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  animation: h40bannerin 0.3s ease;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.55) 0%, transparent 100%);
+}
+.h40-g-banner span {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: #fff7c4;
+}
+.h40-g-banner b {
+  font-size: 46px;
+  font-weight: 900;
+  background: linear-gradient(#fff7c4 10%, #ffd24a 45%, #ff7a00 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1.5px #7a2b00;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.8));
+}
+@keyframes h40bannerin {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.h40-g-attempts {
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: #e8d9b0;
+  flex: 0 0 auto;
+  padding: 4px 0 8px;
+}
+.h40-g-attempts b { color: #ffd24a; font-size: 14px; margin-left: 6px; }
+.h40-g-btns {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+  padding: 0 26px;
+  flex: 0 0 auto;
+}
+.h40-g-pick {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 30px;
+  cursor: pointer;
+  border: 3px solid #d9a821;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+.h40-g-pick.black { background: radial-gradient(circle at 35% 30%, #444, #0a0a0a 75%); color: #fff; }
+.h40-g-pick.red { background: radial-gradient(circle at 35% 30%, #e05c5c, #7a0a0a 75%); color: #fff; }
+.h40-g-pick:disabled { opacity: 0.55; }
+.h40-g-collect {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffb347, #a85b00 70%);
+  border: 3px solid #ffd24a;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 14px rgba(255, 180, 40, 0.45);
+}
+.h40-g-collect .h40-spin-ico { width: 38px; height: 38px; }
+.h40-g-collect span { font-size: 9px; font-weight: 900; letter-spacing: 1px; }
+.h40-g-collect:disabled { opacity: 0.55; }
+.h40-g-foot {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px 12px;
+  font-size: 11px;
+  color: #c9a36a;
+  flex: 0 0 auto;
+}
+.h40-g-foot b { color: #fff; }
+
+/* ---------- Loading ekran ---------- */
+.h40-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.h40-load-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  border: 2px solid #d9a821;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 35% 25%, #2a1502, #0d0801 75%);
+  box-shadow: 0 0 30px rgba(217, 168, 33, 0.35);
+}
+.h40-load-a {
+  font-size: 56px;
+  font-weight: 900;
+  font-style: italic;
+  background: linear-gradient(#fff7c4 10%, #ffd24a 45%, #ff7a00 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 1px #7a2b00;
+}
+.h40-load-name { font-size: 18px; }
+.h40-load-bar {
+  width: min(64vw, 300px);
+  height: 8px;
+  border-radius: 5px;
+  background: #1c1c1c;
+  border: 1px solid #3a3a3a;
+  overflow: hidden;
+}
+.h40-load-bar i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #b8860b, #ffd24a);
+  transition: width 0.2s ease;
+}
+.h40-load-pct { font-size: 11px; color: #c9a36a; }
+
+/* uske visine ekrana: smanji logo i kontrole */
+@media (max-height: 700px) {
+  .h40-logo-40 { font-size: 24px; }
+  .h40-logo-txt { font-size: 12px; }
+  .h40-ctrl.spin { width: 80px; height: 80px; }
+  .h40-spin-ico { width: 44px; height: 44px; }
+  .h40-spin-arc { width: 112px; height: 112px; }
+}

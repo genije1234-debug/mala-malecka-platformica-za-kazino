@@ -26,6 +26,10 @@ export interface GameSummary {
   volatility: string;
   jackpot_eligible: boolean;
   slot?: SlotShape;
+  /** Dedikovan engine sa pravom linijskom matematikom (npr. "hot40"). */
+  engine?: string;
+  /** Fiksna lestvica uloga (BET OPTIONS mreza) ako je igra definise. */
+  bets?: number[];
 }
 
 /** Oblik slot mreže (po igri). Ako postoji, igra se renderuje kao animirani slot. */
@@ -61,7 +65,9 @@ export type WalletTxType =
   | "ROLLBACK"
   | "CORRECTION"
   | "DEPOSIT"
-  | "OPERATOR_FUNDED_SEED";
+  | "OPERATOR_FUNDED_SEED"
+  | "GAMBLE_STAKE"
+  | "GAMBLE_PAYOUT";
 
 export interface PlayResult {
   round_id: string;

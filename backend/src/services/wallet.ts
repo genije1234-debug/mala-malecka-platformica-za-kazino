@@ -14,6 +14,7 @@ export interface WalletResult {
 function delta(txType: WalletTxType, amount: number): number {
   switch (txType) {
     case "BET_DEBIT":
+    case "GAMBLE_STAKE":
       return -amount;
     case "WIN_CREDIT":
     case "JACKPOT_CREDIT":
@@ -21,6 +22,7 @@ function delta(txType: WalletTxType, amount: number): number {
     case "ROLLBACK":
     case "DEPOSIT":
     case "OPERATOR_FUNDED_SEED":
+    case "GAMBLE_PAYOUT":
       return amount;
     case "CORRECTION":
       return amount; // amount moze biti negativan

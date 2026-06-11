@@ -1,5 +1,6 @@
 import { secureRandom, clamp, money, randomInt } from "../util.ts";
 import type { GameType } from "@casino/shared";
+import { spinHot40 } from "./hot40.ts";
 
 export interface OutcomeDef {
   multiplier: number;
@@ -24,6 +25,7 @@ export interface EngineResult {
 export interface PlayOptions {
   target?: number; // crash autocashout / limbo target
   picks?: number[]; // keno
+  maxMultiplier?: number; // plafon isplate u multiplima uloga (house budzet / max win)
 }
 
 /**
@@ -146,6 +148,25 @@ function slotShape(cfg: GameConfig): { rows: number; cols: number } {
 export function playGame(cfg: GameConfig, requestedRtp: number, opts: PlayOptions = {}): EngineResult {
   const rawRng = secureRandom();
   const ev = clamp(requestedRtp, 0.3, 2.0);
+
+  // Igre sa PRAVOM linijskom matematikom (isplata = tačno ono što grid pokazuje).
+  if (cfg.config_json?.engine === "hot40") {
+    // Plafon u multiplima uloga: max win igre + tekuci house budzet.
+    // Engine ne sme da izbaci grid koji ne moze ceo da se isplati.
+    const capMult = Math.min(cfg.max_win_multiplier || Infinity, opts.maxMultiplier ?? Infinity);
+    const res = spinHot40(ev, capMult);
+    return {
+      multiplier: res.ev.multiplier,
+      outcome: {
+        kind: "hot40",
+        grid: res.grid,
+        multiplier: res.ev.multiplier,
+        line_wins: res.ev.lineWins,
+        scatter_win: res.ev.scatterWin,
+      },
+      rawRng: res.rawRng,
+    };
+  }
 
   switch (cfg.game_type) {
     case "crash": {

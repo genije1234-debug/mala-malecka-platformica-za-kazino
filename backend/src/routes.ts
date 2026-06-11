@@ -12,6 +12,8 @@ import { listJackpots } from "./services/jackpot.ts";
 import { houseStats } from "./services/houseGovernor.ts";
 import { totalStats, perGameStats } from "./services/gameStats.ts";
 import { playRound, PlayError } from "./services/play.ts";
+import { hot40Info } from "./games/hot40.ts";
+import { gamblePlay, gambleCollect, gambleState, GambleError } from "./services/gamble.ts";
 import {
   minesStart,
   minesReveal,
@@ -81,11 +83,43 @@ api.get("/games/:id", (req, res) => {
   res.json(gameSummary(g));
 });
 
+// Paytable/info za igre sa pravom linijskom matematikom (INFORMATION ekran).
+api.get("/games/:id/paytable", (req, res) => {
+  const g = get<any>(`SELECT config_json FROM casino_games WHERE game_id=?`, [req.params.id]);
+  if (!g) return res.status(404).json({ error: "NOT_FOUND" });
+  let engine: string | undefined;
+  try {
+    engine = JSON.parse(g.config_json || "{}").engine;
+  } catch { /* nema engine */ }
+  if (engine === "hot40") return res.json(hot40Info());
+  res.status(404).json({ error: "NO_PAYTABLE" });
+});
+
 // ============================ PLAY ============================
 
+// Dedup za retry preko nestabilne veze (tunel): isti clientKey -> isti rezultat,
+// pa frontend sme bezbedno da ponovi spin POST bez duplog skidanja uloga.
+const recentPlays = new Map<string, { at: number; result: unknown }>();
+const PLAY_DEDUP_TTL_MS = 120_000;
+
+function pruneRecentPlays(): void {
+  const cutoff = Date.now() - PLAY_DEDUP_TTL_MS;
+  for (const [k, v] of recentPlays) {
+    if (v.at < cutoff) recentPlays.delete(k);
+  }
+}
+
 api.post("/round/start", authMiddleware, playLimiter, (req: AuthedRequest, res) => {
-  const { gameId, betAmount, mode, options } = req.body ?? {};
+  const { gameId, betAmount, mode, options, clientKey } = req.body ?? {};
   if (!gameId || !betAmount) return res.status(400).json({ error: "MISSING_FIELDS" });
+  const ck =
+    typeof clientKey === "string" && clientKey.length > 0 && clientKey.length <= 80
+      ? `${req.auth!.player_id}:${clientKey}`
+      : null;
+  if (ck) {
+    const hit = recentPlays.get(ck);
+    if (hit) return res.json(hit.result);
+  }
   try {
     const result = playRound({
       playerId: req.auth!.player_id,
@@ -95,12 +129,45 @@ api.post("/round/start", authMiddleware, playLimiter, (req: AuthedRequest, res) 
       mode: mode === "FREEBET" ? "FREEBET" : "REAL",
       options,
     });
+    if (ck) {
+      pruneRecentPlays();
+      recentPlays.set(ck, { at: Date.now(), result });
+    }
     res.json(result);
   } catch (e: any) {
     if (e instanceof PlayError) return res.status(400).json({ error: e.code });
     console.error(e);
     res.status(500).json({ error: "PLAY_FAILED" });
   }
+});
+
+// ---- Gamble (dupliranje dobitka, fer 50/50) ----
+function handleGamble(res: any, fn: () => unknown) {
+  try {
+    res.json(fn());
+  } catch (e: any) {
+    if (e instanceof GambleError) return res.status(400).json({ error: e.code });
+    console.error(e);
+    res.status(500).json({ error: "GAMBLE_FAILED" });
+  }
+}
+
+api.post("/round/gamble/state", authMiddleware, (req: AuthedRequest, res) => {
+  const { roundId } = req.body ?? {};
+  if (!roundId) return res.status(400).json({ error: "MISSING_FIELDS" });
+  handleGamble(res, () => gambleState(req.auth!.player_id, String(roundId)));
+});
+
+api.post("/round/gamble/play", authMiddleware, playLimiter, (req: AuthedRequest, res) => {
+  const { roundId, pick } = req.body ?? {};
+  if (!roundId || (pick !== "RED" && pick !== "BLACK")) return res.status(400).json({ error: "MISSING_FIELDS" });
+  handleGamble(res, () => gamblePlay(req.auth!.player_id, String(roundId), pick));
+});
+
+api.post("/round/gamble/collect", authMiddleware, (req: AuthedRequest, res) => {
+  const { roundId } = req.body ?? {};
+  if (!roundId) return res.status(400).json({ error: "MISSING_FIELDS" });
+  handleGamble(res, () => gambleCollect(req.auth!.player_id, String(roundId)));
 });
 
 // ---- Interaktivne igre: Mines ----
@@ -469,13 +536,19 @@ function handleInteractive(res: Response, fn: () => unknown) {
 
 function gameSummary(g: any) {
   let slot: { reels: number; rows: number; lines: number } | undefined;
+  let engine: string | undefined;
+  let bets: number[] | undefined;
   try {
     const cfg = typeof g.config_json === "string" ? JSON.parse(g.config_json) : g.config_json;
     if (cfg?.slot) slot = cfg.slot;
+    if (cfg?.engine) engine = cfg.engine;
+    if (Array.isArray(cfg?.bets)) bets = cfg.bets;
   } catch {
     /* ignorisi neispravan config */
   }
   return {
+    engine,
+    bets,
     game_id: g.game_id,
     name: g.name,
     game_type: g.game_type,

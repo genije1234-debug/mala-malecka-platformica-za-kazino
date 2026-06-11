@@ -15,3 +15,6 @@ backend/data/
 
 .DS_Store
 .vscode/
+
+# radne reference za razvoj (screenshotovi, analize) - ne ide u repo
+assets/

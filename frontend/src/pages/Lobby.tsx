@@ -62,16 +62,26 @@ export function Lobby({ onOpenGame }: { onOpenGame: (id: string) => void }) {
       <div className="game-grid">
         {shown.map((g) => (
           <div key={g.game_id} className="game-tile" onClick={() => onOpenGame(g.game_id)}>
-            <div className="game-thumb" style={{ background: thumbBg(g) }}>
-              {gameIcon(g)}
-              {g.jackpot_eligible && <span className="badge-jp">JACKPOT</span>}
-            </div>
-            <div className="meta">
-              <div className="gname">{g.name}</div>
-              <div className="gsub">
-                {TYPE_LABELS[g.game_type]} • RTP {(g.rtp_target * 100).toFixed(0)}%
+            {g.game_id === "blazing40" ? (
+              // Kartica = SAMO logo (bez naziva/RTP reda), preko cele plocice
+              <div className="game-thumb logo-only">
+                <img className="thumb-logo" src="/symbols-hot40/logo.png" alt={g.name} draggable={false} />
+                {g.jackpot_eligible && <span className="badge-jp">JACKPOT</span>}
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="game-thumb" style={{ background: thumbBg(g) }}>
+                  {gameIcon(g)}
+                  {g.jackpot_eligible && <span className="badge-jp">JACKPOT</span>}
+                </div>
+                <div className="meta">
+                  <div className="gname">{g.name}</div>
+                  <div className="gsub">
+                    {TYPE_LABELS[g.game_type]} • RTP {(g.rtp_target * 100).toFixed(0)}%
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
