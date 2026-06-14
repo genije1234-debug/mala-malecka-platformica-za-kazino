@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api, getToken, setToken } from "./api.ts";
 import { useJackpots } from "./ws.ts";
 import { useWakeLock } from "./useWakeLock.ts";
@@ -39,6 +39,7 @@ export function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [payout, setPayout] = useState<{ amount: number; currency: string } | null>(null);
   const [leaving, setLeaving] = useState(false);
+  const launchedRef = useRef(false); // StrictMode dvaput pokrece effect -> launch token sme samo jednom
   const jackpots = useJackpots();
 
   // Drži ekran telefona budnim dok je igrač ulogovan (sprečava screen saver/zatamnjenje).
@@ -73,7 +74,8 @@ export function App() {
       try {
         const params = new URLSearchParams(window.location.search);
         const launch = params.get("token");
-        if (launch) {
+        if (launch && !launchedRef.current) {
+          launchedRef.current = true;
           const r = await api.post<{ token: string }>("/auth/launch", { token: launch });
           setToken(r.token);
           window.history.replaceState({}, "", window.location.pathname);
