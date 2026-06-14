@@ -84,7 +84,8 @@ export function findOrCreateOperatorPlayer(operatorUserId: string, preferredUser
      VALUES (?,?,?,?,'ACTIVE',?,?)`,
     [playerId, username, "", "PLAYER", operatorUserId, nowIso()],
   );
-  ensureWallet(playerId);
+  // SSO igrac NEMA demo startni balans: pravi novac dolazi iskljucivo iz kladionice (transferIn).
+  ensureWallet(playerId, 0);
   ensureBrain(playerId);
   run(`INSERT OR IGNORE INTO player_freebet_wallet (player_id, balance, granted_balance, updated_at) VALUES (?,0,0,?)`, [
     playerId,
