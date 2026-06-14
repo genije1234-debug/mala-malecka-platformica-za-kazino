@@ -25,6 +25,9 @@ export interface ProfileData {
 
 export type View = "lobby" | "game" | "profile";
 
+// Sajt kladionice (za povratak iz kazina). Override-uje se sa VITE_OPERATOR_SITE_URL pri buildu.
+const OPERATOR_SITE = (import.meta.env.VITE_OPERATOR_SITE_URL as string) || "http://169.40.15.27";
+
 /** Posle poteza: ili lokalni patch balansa (bez /auth/me), ili pun refresh ako je prazno. */
 export type OnUpdate = (patch?: { balance?: number; freebet_balance?: number }) => Promise<void>;
 
@@ -35,6 +38,7 @@ export function App() {
   const [gameId, setGameId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [payout, setPayout] = useState<{ amount: number; currency: string } | null>(null);
+  const [leaving, setLeaving] = useState(false);
   const jackpots = useJackpots();
 
   // Drži ekran telefona budnim dok je igrač ulogovan (sprečava screen saver/zatamnjenje).
@@ -137,17 +141,46 @@ export function App() {
     setView("game");
   };
 
+  // Izlaz nazad na kladionicu: vrati ceo balans (transfer-out) pa otvori sajt kladionice.
+  // Otkljucava 'kazino' kontekst -> korisnik ponovo moze da se kladi.
+  const leaveToSportsbook = async () => {
+    if (leaving) return;
+    setLeaving(true);
+    try {
+      const r = await api.post<{ amount: number; currency: string }>("/wallet/transfer-out");
+      if (r.amount > 0) showToast(`Vraćeno ${r.amount.toFixed(2)} ${r.currency} na kladionicu.`);
+    } catch {
+      /* i ako padne, vodimo korisnika nazad; novac ostaje siguran u kazinu */
+    } finally {
+      window.location.href = OPERATOR_SITE;
+    }
+  };
+
   return (
     <div className="app">
       <div className="topbar">
         <div className="brand">
           Lucky<span>Brain</span>
         </div>
-        <div className="balance-pill">
-          <span>
-            {profile.balance.toFixed(2)} {profile.currency}
-          </span>
-          {profile.freebet_balance > 0 && <span className="fb">+{profile.freebet_balance.toFixed(2)} FB</span>}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="balance-pill">
+            <span>
+              {profile.balance.toFixed(2)} {profile.currency}
+            </span>
+            {profile.freebet_balance > 0 && <span className="fb">+{profile.freebet_balance.toFixed(2)} FB</span>}
+          </div>
+          <button
+            onClick={leaveToSportsbook}
+            disabled={leaving}
+            title="Vrati novac i nazad na kladionicu"
+            style={{
+              background: "#1f2540", color: "#cdd3f5", border: "1px solid #2a2f4a",
+              borderRadius: 10, padding: "8px 12px", fontSize: 13, fontWeight: 700,
+              cursor: leaving ? "default" : "pointer", whiteSpace: "nowrap", opacity: leaving ? 0.6 : 1,
+            }}
+          >
+            {leaving ? "..." : "↩ Kladionica"}
+          </button>
         </div>
       </div>
 
