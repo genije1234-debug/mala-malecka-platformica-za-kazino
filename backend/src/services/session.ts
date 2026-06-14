@@ -31,16 +31,8 @@ export function registerPlayer(username: string, password: string, role = "PLAYE
   return playerId;
 }
 
-export function login(
-  username: string,
-  password: string,
-  meta: { ip?: string; userAgent?: string } = {},
-): { token: string; player: any } {
-  const player = get<any>(`SELECT * FROM players WHERE username = ?`, [username]);
-  if (!player) throw new Error("INVALID_CREDENTIALS");
-  if (!bcrypt.compareSync(password, player.password_hash)) throw new Error("INVALID_CREDENTIALS");
-  if (player.status === "BLOCKED") throw new Error("ACCOUNT_BLOCKED");
-
+/** Otvori casino sesiju za vec poznatog igraca i izdaj JWT (deljeno izmedju login i SSO launch). */
+export function issueSession(player: any, meta: { ip?: string; userAgent?: string } = {}): { token: string; player: any } {
   const sessionId = uid("ses");
   const createdAt = new Date();
   const expiresAt = new Date(createdAt.getTime() + 12 * 3600 * 1000);
@@ -58,6 +50,47 @@ export function login(
     { expiresIn: config.jwtExpiresIn as any },
   );
   return { token, player };
+}
+
+export function login(
+  username: string,
+  password: string,
+  meta: { ip?: string; userAgent?: string } = {},
+): { token: string; player: any } {
+  const player = get<any>(`SELECT * FROM players WHERE username = ?`, [username]);
+  if (!player) throw new Error("INVALID_CREDENTIALS");
+  if (!bcrypt.compareSync(password, player.password_hash)) throw new Error("INVALID_CREDENTIALS");
+  if (player.status === "BLOCKED") throw new Error("ACCOUNT_BLOCKED");
+
+  return issueSession(player, meta);
+}
+
+/**
+ * SSO: nadji igraca vezanog za kladionicki user_id, ili ga napravi (bez lozinke - prijava ide
+ * iskljucivo preko launch tokena). Username se izvodi iz kladionickog, sa sufiksom ako je zauzet.
+ */
+export function findOrCreateOperatorPlayer(operatorUserId: string, preferredUsername?: string): any {
+  const existing = get<any>(`SELECT * FROM players WHERE operator_user_id = ?`, [operatorUserId]);
+  if (existing) return existing;
+
+  let username = (preferredUsername && preferredUsername.trim()) || `op_${operatorUserId}`;
+  if (get(`SELECT player_id FROM players WHERE username = ?`, [username])) {
+    username = `${username}_op${operatorUserId}`;
+  }
+
+  const playerId = uid("ply");
+  run(
+    `INSERT INTO players (player_id, username, password_hash, role, status, operator_user_id, created_at)
+     VALUES (?,?,?,?,'ACTIVE',?,?)`,
+    [playerId, username, "", "PLAYER", operatorUserId, nowIso()],
+  );
+  ensureWallet(playerId);
+  ensureBrain(playerId);
+  run(`INSERT OR IGNORE INTO player_freebet_wallet (player_id, balance, granted_balance, updated_at) VALUES (?,0,0,?)`, [
+    playerId,
+    nowIso(),
+  ]);
+  return get<any>(`SELECT * FROM players WHERE player_id = ?`, [playerId]);
 }
 
 export function verifyToken(token: string): SessionToken {

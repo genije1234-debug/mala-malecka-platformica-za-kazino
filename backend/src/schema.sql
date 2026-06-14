@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS players (
   self_excluded INTEGER NOT NULL DEFAULT 0,
   cooldown_until TEXT,
   jurisdiction_allowed INTEGER NOT NULL DEFAULT 1,
+  operator_user_id TEXT,            -- veza ka korisniku u kladionici (SSO/transfer most)
   created_at    TEXT NOT NULL,
   last_seen_at  TEXT
 );

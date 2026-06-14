@@ -34,6 +34,7 @@ export function App() {
   const [view, setView] = useState<View>("lobby");
   const [gameId, setGameId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [payout, setPayout] = useState<{ amount: number; currency: string } | null>(null);
   const jackpots = useJackpots();
 
   // Drži ekran telefona budnim dok je igrač ulogovan (sprečava screen saver/zatamnjenje).
@@ -64,10 +65,52 @@ export function App() {
 
   useEffect(() => {
     (async () => {
+      // SSO ulaz sa kladionice: ?token=... -> razmeni za kazino sesiju (bez prijave) i ocisti URL.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const launch = params.get("token");
+        if (launch) {
+          const r = await api.post<{ token: string }>("/auth/launch", { token: launch });
+          setToken(r.token);
+          window.history.replaceState({}, "", window.location.pathname);
+          await refreshProfile();
+          setLoading(false);
+          return;
+        }
+      } catch {
+        /* nevalidan/istekao launch token -> padni na normalnu prijavu */
+        window.history.replaceState({}, "", window.location.pathname);
+      }
       if (getToken()) await refreshProfile();
       setLoading(false);
     })();
   }, [refreshProfile]);
+
+  // Payout sweep: dok je igrac u kazinu, periodicno proveri da li je stigla isplata tiketa
+  // sa kladionice (najcesce jeftino citanje balansa; povlacenje samo kad stvarno ima para).
+  // Ako jeste -> prikazi pop-up i osvezi balans.
+  useEffect(() => {
+    if (!profile) return;
+    let stopped = false;
+    const poll = async () => {
+      if (document.hidden) return;
+      try {
+        const r = await api.post<{ swept: number; currency: string; balance: number }>("/wallet/sweep");
+        if (!stopped && r.swept > 0) {
+          setPayout({ amount: r.swept, currency: r.currency });
+          await refreshProfile();
+        }
+      } catch {
+        /* sweep je best-effort; tiho ignorisi prolazne greske */
+      }
+    };
+    poll(); // odmah po ulasku: pokupi isplatu stiglu dok korisnik nije bio na sajtu
+    const id = setInterval(poll, 30000);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+  }, [profile?.player_id, refreshProfile]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -143,6 +186,44 @@ export function App() {
       </nav>
 
       {toast && <div className="toast">{toast}</div>}
+
+      {payout && (
+        <div
+          onClick={() => setPayout(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)",
+            display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "#15182b", color: "#fff", borderRadius: 16, padding: "28px 24px",
+              width: "min(86vw, 340px)", textAlign: "center",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)", border: "1px solid #2a2f4a",
+            }}
+          >
+            <div style={{ fontSize: 44, lineHeight: 1 }}>🎉</div>
+            <h3 style={{ margin: "12px 0 4px" }}>Isplata sa kladionice</h3>
+            <p style={{ margin: "0 0 10px", color: "#9aa0c0" }}>Stigla je isplata tiketa.</p>
+            <div style={{ fontSize: 30, fontWeight: 800, color: "#4ade80" }}>
+              +{payout.amount.toFixed(2)} {payout.currency}
+            </div>
+            <p style={{ margin: "8px 0 18px", color: "#9aa0c0", fontSize: 13 }}>
+              Dodato na vaš kazino balans.
+            </p>
+            <button
+              onClick={() => setPayout(null)}
+              style={{
+                background: "#5b6cff", color: "#fff", border: "none", borderRadius: 10,
+                padding: "10px 22px", fontSize: 15, fontWeight: 700, cursor: "pointer",
+              }}
+            >
+              U redu
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

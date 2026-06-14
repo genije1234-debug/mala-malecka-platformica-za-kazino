@@ -15,6 +15,11 @@ function hasColumn(table: string, column: string): boolean {
 export function migrate(): void {
   const now = nowIso();
 
+  // players.operator_user_id (veza ka kladionici za transfer most).
+  if (!hasColumn("players", "operator_user_id")) {
+    db.exec(`ALTER TABLE players ADD COLUMN operator_user_id TEXT`);
+  }
+
   // jackpots.total_contributions
   if (!hasColumn("jackpots", "total_contributions")) {
     db.exec(`ALTER TABLE jackpots ADD COLUMN total_contributions REAL NOT NULL DEFAULT 0`);

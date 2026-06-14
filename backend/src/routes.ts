@@ -4,7 +4,8 @@ import { uid, money } from "./util.ts";
 import { config } from "./config.ts";
 import { authMiddleware, adminMiddleware, authLimiter, playLimiter, type AuthedRequest } from "./middleware.ts";
 
-import { registerPlayer, login } from "./services/session.ts";
+import { registerPlayer, login, issueSession, findOrCreateOperatorPlayer } from "./services/session.ts";
+import { operatorVerifyLaunch } from "./services/operator.ts";
 import { startSessionCurve, getBrain, setManualRtp, effectiveRtp, getActiveCurve } from "./services/brain.ts";
 import { getBalance, walletOp } from "./services/wallet.ts";
 import { getFreebet } from "./services/freebet.ts";
@@ -26,6 +27,7 @@ import {
 import { getBehavior, recomputeSessionMetrics } from "./services/behavior.ts";
 import { audit } from "./services/audit.ts";
 import { runReconciliation } from "./services/reconciliation.ts";
+import { transferIn, transferOut, sweepPayouts } from "./services/transfer.ts";
 import { resetState } from "./seedData.ts";
 
 /** Validacija novčanog uloga (anti-exploit). */
@@ -62,6 +64,39 @@ api.post("/auth/login", authLimiter, (req, res) => {
     res.json({ token, player_id: player.player_id, username: player.username, role: player.role });
   } catch (e: any) {
     res.status(401).json({ error: e.message });
+  }
+});
+
+// SSO launch: korisnik je kliknuo "Slot" na kladionici -> stigao sa jednokratnim tokenom.
+// Razmeni token (server-to-server) za kladionickog korisnika, nadji/napravi igraca, otvori
+// sesiju i odmah prebaci novac iz kladionice u kazino. Bez ponovne prijave.
+api.post("/auth/launch", authLimiter, async (req, res) => {
+  const token = (req.body ?? {}).token;
+  if (!token || typeof token !== "string") return res.status(400).json({ error: "MISSING_TOKEN" });
+  try {
+    const verified = await operatorVerifyLaunch(token);
+    const operatorUserId = String(verified.user_id ?? "");
+    if (!operatorUserId) return res.status(400).json({ error: "BAD_LAUNCH" });
+
+    const player = findOrCreateOperatorPlayer(operatorUserId, verified.username);
+    const { token: jwtToken } = issueSession(player, { ip: req.ip, userAgent: req.headers["user-agent"] as string });
+    recomputeSessionMetrics(player.player_id);
+    startSessionCurve(player.player_id, null);
+
+    // Povuci novac iz kladionice u kazino (zakljuca kontekst na 'kazino'). Ako padne, igrac je
+    // ipak ulogovan u kazino sa lokalnim balansom 0 i moze rucno transfer-in kasnije.
+    let transferred = 0;
+    try {
+      const t = await transferIn(player.player_id);
+      transferred = Number((t as any).amount ?? 0);
+    } catch (e: any) {
+      console.error("launch transfer-in failed:", e?.message ?? e);
+    }
+
+    res.json({ token: jwtToken, player_id: player.player_id, username: player.username, transferred });
+  } catch (e: any) {
+    console.error("launch failed:", e?.message ?? e);
+    res.status(401).json({ error: "LAUNCH_FAILED", detail: String(e?.message ?? e) });
   }
 });
 
@@ -276,7 +311,63 @@ api.post("/player/notifications/:id/read", authMiddleware, (req: AuthedRequest, 
   res.json({ ok: true });
 });
 
+// ============================ WALLET TRANSFER (most ka kladionici) ============================
+
+// Ulaz u kazino: povuci ceo balans iz kladionice u lokalni wallet.
+api.post("/wallet/transfer-in", authMiddleware, async (req: AuthedRequest, res) => {
+  try {
+    const result = await transferIn(req.auth!.player_id);
+    res.json(result);
+  } catch (e: any) {
+    console.error("transfer-in failed:", e?.message ?? e);
+    res.status(502).json({ error: "TRANSFER_IN_FAILED", detail: String(e?.message ?? e) });
+  }
+});
+
+// Sweep: pokupi isplatu tiketa koja je stigla na kladionicu dok je igrac u kazinu.
+// Frontend ovo zove periodicno; ako swept>0 -> prikazi pop-up.
+api.post("/wallet/sweep", authMiddleware, async (req: AuthedRequest, res) => {
+  try {
+    const result = await sweepPayouts(req.auth!.player_id);
+    res.json(result);
+  } catch (e: any) {
+    console.error("wallet sweep failed:", e?.message ?? e);
+    res.status(502).json({ error: "SWEEP_FAILED", detail: String(e?.message ?? e) });
+  }
+});
+
+// Izlaz iz kazina: vrati ceo lokalni balans na kladionicki nalog.
+api.post("/wallet/transfer-out", authMiddleware, async (req: AuthedRequest, res) => {
+  try {
+    const result = await transferOut(req.auth!.player_id);
+    res.json(result);
+  } catch (e: any) {
+    console.error("transfer-out failed:", e?.message ?? e);
+    res.status(502).json({ error: "TRANSFER_OUT_FAILED", detail: String(e?.message ?? e) });
+  }
+});
+
 // ============================ ADMIN ============================
+
+// Vezivanje kazino igraca za korisnika u kladionici (do SSO faze radi se rucno/testno).
+api.post("/admin/players/:id/link-operator", authMiddleware, adminMiddleware, (req: AuthedRequest, res) => {
+  const pid = req.params.id;
+  const player = get<any>(`SELECT player_id FROM players WHERE player_id=?`, [pid]);
+  if (!player) return res.status(404).json({ error: "NOT_FOUND" });
+  const operatorUserId = (req.body ?? {}).operator_user_id;
+  if (operatorUserId === undefined || operatorUserId === null || operatorUserId === "") {
+    return res.status(400).json({ error: "MISSING_OPERATOR_USER_ID" });
+  }
+  run(`UPDATE players SET operator_user_id=? WHERE player_id=?`, [String(operatorUserId), pid]);
+  audit({
+    actorId: req.auth!.player_id,
+    action: "OPERATOR_LINK_SET",
+    entityType: "player",
+    entityId: pid,
+    newValue: { operator_user_id: String(operatorUserId) },
+  });
+  res.json({ ok: true, player_id: pid, operator_user_id: String(operatorUserId) });
+});
 
 api.get("/admin/players", authMiddleware, adminMiddleware, (_req, res) => {
   const rows = all<any>(

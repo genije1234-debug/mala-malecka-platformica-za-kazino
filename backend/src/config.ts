@@ -21,7 +21,9 @@ export const config = {
   corsOrigin: process.env.CORS_ORIGIN,
   isProd,
 
-  currency: "EUR",
+  // Mora se poklapati sa valutom kladionice (izvor istine za novac).
+  // Sada USD; kasnije multi-valutno (currency kod se već nosi uz svaki iznos).
+  currency: "USD",
 
   /** Putanja do SQLite fajla (lokalni dev). U produkciji se menja PostgreSQL-om. */
   dbFile: process.env.DB_FILE ?? path.join(__dirname, "..", "data", "casino.sqlite"),
@@ -77,6 +79,19 @@ export const config = {
   // Admin nalog (seed).
   adminUsername: process.env.ADMIN_USER ?? "admin",
   adminPassword: process.env.ADMIN_PASS ?? "admin123",
+
+  // --- Operator (kladionica) wallet most ---
+  // Transfer model: kladionica je izvor istine za novac. Kazino zove ovaj API
+  // SAMO na ulazu (withdraw-all) i izlazu (deposit), nikad po spinu.
+  // Ako operatorWalletEnabled=false ILI igrac nema operator_user_id -> koristi se
+  // lokalni mock wallet (demo/botovi rade kao i pre).
+  operatorWalletEnabled: process.env.OPERATOR_WALLET_ENABLED === "1",
+  // Bazni URL kladionickog API-ja, npr. https://admin.domen.com/api
+  operatorBaseUrl: process.env.OPERATOR_BASE_URL ?? "",
+  // Deljeni token (isti kao LIVE_FEED_TOKEN u kladionici).
+  operatorToken: process.env.OPERATOR_TOKEN ?? "",
+  // Timeout za poziv kladionice (ms).
+  operatorTimeoutMs: Number(process.env.OPERATOR_TIMEOUT_MS ?? 8000),
 };
 
 export const NUM_JACKPOTS = 10;
